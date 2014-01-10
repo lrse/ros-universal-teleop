@@ -1,0 +1,7 @@
+<launch>
+  <param name="exabot/device" value="/dev/ttyUSB0"/>
+  <param name="universal_teleop/target_topic" value="/exabot/cmd_vel"/>
+  <!-- <node name="exabot" pkg="exabot" type="exabot" output="screen"/> -->
+  <node name="joy" pkg="joy" type="joy_node"/>
+  <node name="universal_teleop" pkg="universal_teleop" type="universal_teleop"/>
+</launch>
