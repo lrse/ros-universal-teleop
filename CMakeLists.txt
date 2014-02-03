@@ -74,7 +74,7 @@ add_executable(universal_teleop src/main.cpp src/teleop.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(universal_teleop_node universal_teleop_generate_messages_cpp)
+add_dependencies(universal_teleop universal_teleop_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(universal_teleop
