@@ -1,0 +1,6 @@
+<launch>
+  <include file="ardrone-settings.xml"/>
+  <node name="joy" pkg="joy" type="joy_node"/>
+  <node name="keyboard" pkg="keyboard" type="keyboard"/> 
+  <node name="universal_teleop" pkg="universal_teleop" type="universal_teleop"/> 
+</launch>

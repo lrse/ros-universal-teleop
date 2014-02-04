@@ -1,7 +1,6 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Empty.h>
 #include <iostream>
-#include "universal_teleop/Event.h"
 #include "universal_teleop/Control.h"
 #include "teleop.h"
 
@@ -11,15 +10,15 @@ namespace teleop = universal_teleop;
 teleop::Teleop::Teleop(void) : n("~"), override_enabled(false)
 {
   /* load mappings */
-  joy_axes = { {"pitch", 1}, {"roll", 3}, {"yaw", 0}, {"vertical",4} };
+  joy_axes = { {"pitch", 1}, {"roll", 0}, {"yaw", 3}, {"vertical",2} };
   n.param("joy_axes", joy_axes, joy_axes);
   for (auto& j : joy_axes) joy_axis_map[j.second] = j.first;
   
-  map<string, int> joy_buttons = { {"override", 4}, {"start", 0}, {"stop", 1}, {"takeoff", 2}, {"land", 3} };
+  map<string, int> joy_buttons = { {"override", 4}, {"start", 2}, {"stop", 1}, {"takeoff", 10}, {"land", 11} };
   n.param("joy_buttons", joy_buttons, joy_buttons);
   for (auto& j : joy_buttons) joy_button_map[j.second] = j.first;
 
-  std::map<std::string, int> keys;
+  std::map<std::string, int> keys = { {"override", 32}, {"start", 113}, {"stop", 97}, {"takeoff", 121}, {"land", 104} };
   n.param("keys", keys, keys);
   for (auto& k : keys) key_map[k.second] = k.first;
 
@@ -33,6 +32,24 @@ teleop::Teleop::Teleop(void) : n("~"), override_enabled(false)
   
   pub_event = n.advertise<teleop::Event>("events", 5);
   pub_control = n.advertise<teleop::Control>("controls", 1);
+
+  /* special events for UAV commands */
+  pub_takeoff = n.advertise<std_msgs::Empty>("/robot/takeoff", 5);
+  pub_land = n.advertise<std_msgs::Empty>("/robot/land", 5);
+  pub_emergency = n.advertise<std_msgs::Empty>("/robot/reset", 5);
+}
+
+void teleop::Teleop::process_event(const teleop::Event& e)
+{
+  if (e.event == "override") override_enabled = e.state;
+  else {
+    if (override_enabled && e.state) {
+      if (e.event == "takeoff") pub_takeoff.publish(std_msgs::Empty());
+      else if (e.event == "land") pub_land.publish(std_msgs::Empty());
+      else if (e.event == "emergency") pub_emergency.publish(std_msgs::Empty());
+    }
+  }
+  pub_event.publish(e);
 }
 
 void teleop::Teleop::joystick_event(const sensor_msgs::Joy::ConstPtr& joy)
@@ -49,8 +66,7 @@ void teleop::Teleop::joystick_event(const sensor_msgs::Joy::ConstPtr& joy)
       if (joy_button_map.find(b) == joy_button_map.end()) e.event = "unknown";
       else e.event = joy_button_map[b];
       e.state = joy->buttons[b];      
-      pub_event.publish(e);
-      if (e.event == "override") override_enabled = e.state;
+      process_event(e);
     }
   }
 
@@ -75,7 +91,7 @@ void teleop::Teleop::keyboard_up_event(const keyboard::Key::ConstPtr& key)
   if (key_map.find(key->code) == key_map.end()) e.event = "unknown";
   else e.event = key_map[key->code];
   e.state = 0;
-  pub_event.publish(e);
+  process_event(e);
 }
 
 void teleop::Teleop::keyboard_down_event(const keyboard::Key::ConstPtr& key)
@@ -84,7 +100,7 @@ void teleop::Teleop::keyboard_down_event(const keyboard::Key::ConstPtr& key)
   if (key_map.find(key->code) == key_map.end()) e.event = "unknown";
   else e.event = key_map[key->code];
   e.state = 1;
-  pub_event.publish(e);
+  process_event(e);
 }
 
 void teleop::Teleop::control(void)
