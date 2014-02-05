@@ -22,6 +22,10 @@ teleop::Teleop::Teleop(void) : n("~"), override_enabled(false)
   n.param("keys", keys, keys);
   for (auto& k : keys) key_map[k.second] = k.first;
 
+  axis_scales = { { "pitch", 1.0f }, { "roll", 1.0f }, { "yaw", 1.0f }, { "vertical", 1.0f } };
+  n.param("scales", axis_scales, axis_scales);
+  for (auto& k: axis_scales) cout << k.first << " " << k.second << endl;
+
   /* subscribe to input sources */
   joy_sub = n.subscribe("/joy", 1, &Teleop::joystick_event, this);
   keyup_sub = n.subscribe("/keyboard/keyup", 1, &Teleop::keyboard_up_event, this);
@@ -41,7 +45,17 @@ teleop::Teleop::Teleop(void) : n("~"), override_enabled(false)
 
 void teleop::Teleop::process_event(const teleop::Event& e)
 {
-  if (e.event == "override") override_enabled = e.state;
+  if (e.event == "override") {
+    if (e.state == 0 && override_enabled) {
+      // when releasing override, stop robot 
+      geometry_msgs::Twist vel;
+      vel.linear.x = vel.linear.y = vel.linear.z = 0;
+      vel.angular.x = vel.angular.y = 1; // non-zero to avoid hovering when zero-ing controls
+      vel.angular.z = 0;
+      pub_vel.publish(vel);
+    }
+    override_enabled = e.state;
+  }
   else {
     if (override_enabled && e.state) {
       if (e.event == "takeoff") pub_takeoff.publish(std_msgs::Empty());
@@ -107,11 +121,11 @@ void teleop::Teleop::control(void)
 {
   if (override_enabled) {
     geometry_msgs::Twist vel;
-    vel.linear.x = last_joy_msg.axes[joy_axes["pitch"]];
-    vel.linear.y = last_joy_msg.axes[joy_axes["roll"]];
-    vel.linear.z = last_joy_msg.axes[joy_axes["vertical"]];
-    vel.angular.x = vel.angular.y = 0;
-    vel.angular.z = last_joy_msg.axes[joy_axes["yaw"]];
+    vel.linear.x = last_joy_msg.axes[joy_axes["pitch"]] * axis_scales["pitch"];
+    vel.linear.y = last_joy_msg.axes[joy_axes["roll"]] * axis_scales["roll"];
+    vel.linear.z = last_joy_msg.axes[joy_axes["vertical"]] * axis_scales["vertical"];
+    vel.angular.x = vel.angular.y = 1; // non-zero to avoid hovering when zero-ing controls
+    vel.angular.z = last_joy_msg.axes[joy_axes["yaw"]] * axis_scales["yaw"];
     pub_vel.publish(vel);
   }
 }
