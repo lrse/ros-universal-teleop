@@ -5,6 +5,10 @@
            <remap from="ardrone/takeoff" to="robot/takeoff"/>
            <remap from="ardrone/land" to="robot/land"/>
            <remap from="cmd_vel" to="robot/cmd_vel"/>-->
+           <remap from="ardrone/image_raw" to="camera/image_raw"/>
+           <remap from="ardrone/camera_info" to="camera/camera_info"/>
+           <remap from="ardrone/odometry" to="robot/pose"/>
+           <remap from="ardrone/imu" to="robot/imu"/>
 
 	    <param name="outdoor" value="0" />
 	    <param name="max_bitrate" value="4000" />
@@ -12,6 +16,10 @@
 	    <param name="navdata_demo" value="1" />
 	    <param name="flight_without_shell" value="0" />
 	    <param name="altitude_max" value="2500" />
+            <param name="realtime_navdata" value="false"/>
+            <param name="realtime_video" value="false"/>
+            <param name="looprate" value="50"/>
+            <param name="navdata_demo" value="0"/>
         <param name="altitude_min" value="50" />
         <param name="euler_angle_max" value="0.21" />
         <param name="control_vz_max" value="700" />

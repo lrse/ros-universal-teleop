@@ -1,5 +1,0 @@
-<launch>
-  <node name="teleop" pkg="universal_teleop" type="universal_teleop"/>
-  <node name="joy" pkg="joy" type="joy_node"/>
-  <node name="keyboard" pkg="keyboard" type="keyboard"/>
-</launch>
