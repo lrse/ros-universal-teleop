@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>universal_teleop</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>Allows keyboard/joystick control of any robot by means of geometry_msgs::Twist messages</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 

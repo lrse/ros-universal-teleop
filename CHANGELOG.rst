@@ -2,8 +2,8 @@
 Changelog for package universal_teleop
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2014-06-08)
+------------------
 * launch files
 * tidy up for release
 * added axis scaling; robot now stops after override is released
