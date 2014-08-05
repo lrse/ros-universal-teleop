@@ -4,5 +4,6 @@
 
   <node name="universal_teleop" pkg="universal_teleop" type="universal_teleop" output="screen">
     <rosparam file="$(find universal_teleop)/launch/pioneer_input_map.yml"/>
+    <remap from="/robot/cmd_vel" to="/cmd_vel"/>
   </node>
 </launch>
