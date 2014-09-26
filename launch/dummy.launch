@@ -2,8 +2,8 @@
   <node name="joy" pkg="joy" type="joy_node"/>
   <node name="keyboard" pkg="keyboard" type="keyboard"/>
 
-  <node name="universal_teleop" pkg="universal_teleop" type="universal_teleop" output="screen">
-    <rosparam file="$(find universal_teleop)/launch/pioneer_input_map.yml"/>
+  <node name="universal_teleop" pkg="universal_teleop" type="universal_teleop" output="screen" _launch-prefix="konsole --new-tab -e bash /home/v01d/misc/scripts/ros-debug">
+    <rosparam file="$(find universal_teleop)/launch/pioneer_input_map-joy2.yml"/>
     <remap from="/robot/cmd_vel" to="/cmd_vel"/>
   </node>
 </launch>

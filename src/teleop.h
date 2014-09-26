@@ -29,12 +29,14 @@ namespace universal_teleop {
       std::map<int, std::string> joy_button_map;
       std::map<int, std::string> joy_axis_map;
       std::map<uint16_t, std::string> key_map;
+      std::map<uint16_t, std::string> key_axes_map;
+      std::map<std::string, int> key_axes_state;
       
       std::map<std::string, float> axis_scales;
 
       std::map<std::string, int> joy_axes;
 
-      bool override_enabled;
+      bool key_override_enabled, joy_override_enabled, send_velocity;
   };
 }
 
