@@ -1,0 +1,10 @@
+<launch>
+  <node name="joy" pkg="joy" type="joy_node"/>
+  <node name="keyboard" pkg="keyboard" type="keyboard"/>
+
+  <node type="chameleon" pkg="chameleon" name="robot" output="screen"/>
+
+  <node name="universal_teleop" pkg="universal_teleop" type="universal_teleop" output="screen">
+    <rosparam file="$(find universal_teleop)/launch/chameleon_input_map.yml"/>
+  </node>
+</launch>

@@ -19,6 +19,10 @@ teleop::Teleop::Teleop(void) : n("~"), key_override_enabled(false), joy_override
   else joy_buttons = { {"override", 4}, {"start", 2}, {"stop", 1}, {"takeoff", 10}, {"land", 11} };
   for (auto& j : joy_buttons) joy_button_map[j.second] = j.first;
 
+  joy_deadzones = { { "pitch", 0.000001f }, { "roll", 0.000001f }, { "yaw", 0.000001f }, { "vertical", 0.000001f } };
+  n.param("joy_deadzones", joy_deadzones, joy_deadzones);
+  for (auto& k: joy_deadzones) cout << k.first << " " << k.second << endl;
+
   std::map<std::string, int> keys;
   if (n.hasParam("keys")) n.getParam("keys", keys);
   else keys = { {"override", 32}, {"start", 113}, {"stop", 97}, {"takeoff", 121}, {"land", 104} };
@@ -32,7 +36,7 @@ teleop::Teleop::Teleop(void) : n("~"), key_override_enabled(false), joy_override
 
   axis_scales = { { "pitch", 1.0f }, { "roll", 1.0f }, { "yaw", 1.0f }, { "vertical", 1.0f } };
   n.param("scales", axis_scales, axis_scales);
-  for (auto& k: axis_scales) cout << k.first << " " << k.second << endl;
+  //for (auto& k: axis_scales) cout << k.first << " " << k.second << endl;
 
   n.param("send_velocity", send_velocity, true);
 
@@ -55,7 +59,7 @@ teleop::Teleop::Teleop(void) : n("~"), key_override_enabled(false), joy_override
 
 void teleop::Teleop::process_event(const teleop::Event& e)
 {
-  ROS_INFO_STREAM("event: " << e.event << " state: " << e.state);
+  ROS_DEBUG_STREAM("event: " << e.event << " state: " << e.state);
   if (e.event == "override") {
     if (e.state == 0) {
       // when releasing override, stop robot 
@@ -102,7 +106,13 @@ void teleop::Teleop::joystick_event(const sensor_msgs::Joy::ConstPtr& joy)
       teleop::Control c;
       if (joy_axis_map.find(a) == joy_axis_map.end()) c.control = "unknown";
       else c.control = joy_axis_map[a];
-      c.value = joy->axes[a];      
+
+      if (c.control != "unknown" && std::abs(joy->axes[a]) < joy_deadzones[joy_axis_map[a]])
+        c.value = 0;
+      else {
+        c.value = joy->axes[a];
+      }
+
       pub_control.publish(c);
     }
   }
@@ -112,7 +122,7 @@ void teleop::Teleop::joystick_event(const sensor_msgs::Joy::ConstPtr& joy)
 
 void teleop::Teleop::keyboard_up_event(const keyboard::Key::ConstPtr& key)
 {
-  ROS_INFO_STREAM("keyup: " << key->code);
+  ROS_DEBUG_STREAM("keyup: " << key->code);
   if (key_axes_map.find(key->code) != key_axes_map.end()) {
     std::string& cmd = key_axes_map[key->code];
     key_axes_state[cmd.substr(0, cmd.size() - 1)] = 0;
@@ -130,7 +140,7 @@ void teleop::Teleop::keyboard_up_event(const keyboard::Key::ConstPtr& key)
 
 void teleop::Teleop::keyboard_down_event(const keyboard::Key::ConstPtr& key)
 {
-  ROS_INFO_STREAM("keydown: " << key->code);
+  ROS_DEBUG_STREAM("keydown: " << key->code);
 
   if (key_axes_map.find(key->code) != key_axes_map.end()) {
     std::string& cmd = key_axes_map[key->code];
@@ -155,14 +165,19 @@ void teleop::Teleop::control(void)
     float pitch = last_joy_msg.axes[joy_axes["pitch"]];
     float roll = last_joy_msg.axes[joy_axes["roll"]];
     float yaw = last_joy_msg.axes[joy_axes["yaw"]];
-    /*if (fabsf(pitch) < 0.9) pitch = 0;
-    if (fabsf(roll) < 0.9) roll = 0;
-    if (fabsf(yaw) < 0.9) yaw = 0;*/
+    float vertical = last_joy_msg.axes[joy_axes["vertical"]];
+
+    /* check deadzones */
+    if (std::abs(pitch) < joy_deadzones["pitch"]) pitch = 0;
+    if (std::abs(yaw) < joy_deadzones["yaw"]) yaw = 0;
+    if (std::abs(roll) < joy_deadzones["roll"]) roll = 0;
+    if (std::abs(vertical) < joy_deadzones["vertical"]) vertical = 0;
+
 
     geometry_msgs::Twist vel;
     vel.linear.x = pitch * axis_scales["pitch"];
     vel.linear.y = roll * axis_scales["roll"];
-    vel.linear.z = last_joy_msg.axes[joy_axes["vertical"]] * axis_scales["vertical"];
+    vel.linear.z = vertical * axis_scales["vertical"];
     vel.angular.x = vel.angular.y = 1; // non-zero to avoid hovering when zero-ing controls
     vel.angular.z = yaw * axis_scales["yaw"];
     pub_vel.publish(vel);

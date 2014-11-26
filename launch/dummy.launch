@@ -3,7 +3,12 @@
   <node name="keyboard" pkg="keyboard" type="keyboard"/>
 
   <node name="universal_teleop" pkg="universal_teleop" type="universal_teleop" output="screen" _launch-prefix="konsole --new-tab -e bash /home/v01d/misc/scripts/ros-debug">
-    <rosparam file="$(find universal_teleop)/launch/pioneer_input_map-joy2.yml"/>
+    <rosparam file="$(find universal_teleop)/launch/joy_foxconn.yml"/>
+    <!--<rosparam file="$(find universal_teleop)/launch/joy_noganet.yml"/>-->
+
+    <rosparam file="$(find universal_teleop)/launch/keyboard.yml"/>
+    <rosparam file="$(find universal_teleop)/launch/pioneer_scales.yml"/>
+
     <remap from="/robot/cmd_vel" to="/cmd_vel"/>
   </node>
 </launch>

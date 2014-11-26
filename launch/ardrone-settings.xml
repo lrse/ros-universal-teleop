@@ -16,10 +16,9 @@
 	    <param name="navdata_demo" value="1" />
 	    <param name="flight_without_shell" value="0" />
 	    <param name="altitude_max" value="2500" />
-            <param name="realtime_navdata" value="false"/>
+            <param name="realtime_navdata" value="true"/>
             <param name="realtime_video" value="false"/>
             <param name="looprate" value="50"/>
-            <param name="navdata_demo" value="0"/>
         <param name="altitude_min" value="50" />
         <param name="euler_angle_max" value="0.21" />
         <param name="control_vz_max" value="700" />

@@ -3,10 +3,14 @@
   <node name="keyboard" pkg="keyboard" type="keyboard"/>
 
   <node type="RosAria" pkg="rosaria" name="robot">
-    <param name="port" value="/dev/ttyUSB1"/>
+    <param name="port" value="/dev/ttyUSB0"/>
   </node>
 
   <node name="universal_teleop" pkg="universal_teleop" type="universal_teleop" output="screen">
-    <rosparam file="$(find universal_teleop)/launch/pioneer_input_map-joy2.yml"/>
+  <rosparam file="$(find universal_teleop)/launch/joy_foxconn.yml"/>
+  <!--<rosparam file="$(find universal_teleop)/launch/joy_noganet.yml"/>-->
+
+  <rosparam file="$(find universal_teleop)/launch/keyboard.yml"/>
+  <rosparam file="$(find universal_teleop)/launch/pioneer_scales.yml"/>
   </node>
 </launch>

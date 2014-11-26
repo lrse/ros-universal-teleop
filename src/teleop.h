@@ -35,6 +35,7 @@ namespace universal_teleop {
       std::map<std::string, float> axis_scales;
 
       std::map<std::string, int> joy_axes;
+      std::map<std::string, float> joy_deadzones;
 
       bool key_override_enabled, joy_override_enabled, send_velocity;
   };
