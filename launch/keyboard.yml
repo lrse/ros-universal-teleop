@@ -1,1 +1,1 @@
-keys: {start: 113, stop: 119, land: 101, override: 32, train: 116, navigate: 110}
+keys: {start: 113, stop: 119, land: 101, override: 32, train: 116, navigate: 110, toggle_resampling: 107}
